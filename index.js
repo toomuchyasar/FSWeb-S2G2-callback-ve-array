@@ -17,6 +17,7 @@ const { fifaData } = require('./fifa.js')
 //(e) 2014 Dünya kupası finali kazananı*/
 
 
+
 /*  Görev 2: 
 	Finaller adlı fonksiyonu kullanarak aşağıdakileri uygulayın:
 	1. Bir dizi(array) olan Fifa datasını fonksiyonun birinci parametresi olarak alacak
@@ -25,23 +26,17 @@ const { fifaData } = require('./fifa.js')
 	💡 İPUCU - verilen data içindeki nesnelerin(objects) "Stage" anahtarına bakmalısınız
 */
 
-function Finaller(/* kodlar buraya */) {
-	
-    /* kodlar buraya */
+function Finaller(array) {
+	const allFinals = array.filter((match) => match.Stage == "Final")
+	return allFinals;
 }
+console.log(Finaller(fifaData));
 
 
-
-/*  Görev 3: 
-	Bir higher-order fonksiyonu olan Yillar isimli fonksiyona aşağıdakileri uygulayın: 
-	1. fifaData dizisini(array) fonksiyonun birinci parametresi olarak alacak
-	2. Görev 2'de yazdığınız Finaller fonksiyonunu, geriçağırım(callback) olarak fonksiyonun ikinci parametresi olarak alacak
-	3. Finaller data setindeki tüm yılları içeren "years" adındaki diziyi(array) döndürecek
-	*/
-
-function Yillar(/* kodlar buraya */) {
-	
-    /* kodlar buraya */
+function Yillar(array,callback) {
+const years = Finaller(fifaData);
+const finalyears = years.map(year => year.Year);
+return finalyears;
 }
 
 
@@ -53,10 +48,19 @@ function Yillar(/* kodlar buraya */) {
 	💡 İPUCU: Beraberlikler(ties) için şimdilik endişelenmeyin (Detaylı bilgi için README dosyasına bakabilirsiniz.)
 	4. Tüm kazanan ülkelerin isimlerini içeren `kazananlar` adında bir dizi(array) döndürecek(return)  */ 
 
-function Kazananlar(/* kodlar buraya */) {
-	
-    /* kodlar buraya */
-	
+function Kazananlar(array,callback) {
+	const teams = Finaller(array);
+	const winnerTeams = [];
+	for(let i = 0; i < teams.length; i++){
+		if(teams[i]["Home Team Goals"]>teams[i]["Away Team Goals"]){
+			winnerTeams.push((teams[i]["Home Team Name"]))
+		}else if (teams[i]["Away Team Goals"]>teams[i]["Home Team Goals"]){
+			winnerTeams.push((teams[i]["Away Team Name"]))
+		}else if (teams[i]["Away Team Goals"]==teams[i]["Home Team Goals"]){
+			winnerTeams.push(teams[i]['Win conditions'].split(" win")[0]);
+		}
+	}
+   return winnerTeams
 }
 
 
@@ -71,35 +75,33 @@ function Kazananlar(/* kodlar buraya */) {
 	
 	💡 İPUCU: her cümlenin adım 4'te belirtilen cümleyle birebir aynı olması gerekmektedir.
 */
-
-function YillaraGoreKazananlar(/* kodlar buraya */) {
-	
-/* kodlar buraya */
-
+function YillaraGoreKazananlar(fifaData, Finaller, Yillar, Kazananlar) {
+	let years = Yillar(fifaData, Finaller);
+	let winners = Kazananlar(fifaData, Finaller);
+	let winyear = [];
+	for (let i=0; i< years.length; i++){
+		winyear.push(`${years[i]} yılında, ${winners[i]} dünya kupasını kazandı!`)
+	}
+	return winyear
 }
 
+console.log("---------------");
+console.log(YillaraGoreKazananlar(fifaData,Finaller,Yillar,Kazananlar));
+console.log("---------------");
 
-/*  Görev 6: 
-	Bir higher order fonksiyonu olan `OrtalamaGolSayisi` isimli fonksiyona aşağıdakileri uygulayın: 
-	1. Görev 2'de yazdığınız `Finaller` fonksiyonunu birinci parametre olarak alacak; 'fifaData' dizisini argüman olarak eklediğinizden emin olun
-	
-	💡 İPUCU: Çağırma örneği: `OrtalamaGolSayisi(Finaller(fifaData));`
-	
-	2. Her maç için Ortalama toplam evsahibi gol sayısı ve toplam deplasman gol sayısını hesaplayacak (her maçta atılan toplam gol sayısı)
-	
-	3. Sonucun 2. ondalığını yuvarlayıp, bulunan değeri döndürecek(return)
-	
-	💡 İPUCU: .reduce, .toFixed (dizilim(syntax) için MDN'ye bakın) kullan, ve bunu 2 adımda yapın) 
-	
-*/
 
-function OrtalamaGolSayisi(/* kodlar buraya */) {
-	
-    /* kodlar buraya */
-	
+function OrtalamaGolSayisi(funC) {
+	const goal = funC;
+	const goalSum = goal.reduce((total,teams) => {return total + teams["Away Team Goals"] + teams["Home Team Goals"]},0);
+	const match = funC.length;
+	const goalAverage = goalSum/match;
+	let ave = goalAverage.toFixed(2);
+	return ave; 
 }
-
-
+OrtalamaGolSayisi(Finaller(fifaData));
+console.log("---------------")
+console.log("Ortalama :" + OrtalamaGolSayisi(Finaller(fifaData)))
+console.log("---------------")
 
 /// EKSTRA ÇALIŞMALAR ///
 
